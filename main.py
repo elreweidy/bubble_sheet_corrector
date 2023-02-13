@@ -39,16 +39,21 @@ def get_bubbles(path):
     """ the previous line actually convert the BGR image to RGB image first because that is
      what is used in matplotlib and if we don't do it, it will mix things up eventually"""
 
-    main_paper_gray = cv2.cvtColor(main_paper_rgb, cv2.COLOR_RGB2GRAY)  # Here we convert our RGB to gray image.
+    main_paper_gray = cv2.cvtColor(
+        main_paper_rgb, cv2.COLOR_RGB2GRAY
+    )  # Here we convert our RGB to gray image.
     """ So, if we plot the images now we will see it's converted to grayscale image.
         to do that us the code below again:"""
 
     norm_img = np.zeros((width, height))
 
-    main_paper_gray_normalized = cv2.normalize(main_paper_gray, norm_img, 0, 255, cv2.NORM_MINMAX)
+    main_paper_gray_normalized = cv2.normalize(
+        main_paper_gray, norm_img, 0, 255, cv2.NORM_MINMAX
+    )
 
-    main_paper_blur = cv2.GaussianBlur(main_paper_gray_normalized, (5, 5),
-                                       1)  # Making the image blur (necessary for edge detection below).
+    main_paper_blur = cv2.GaussianBlur(
+        main_paper_gray_normalized, (5, 5), 1
+    )  # Making the image blur (necessary for edge detection below).
 
     # ---------------EDGE DETECTION AND CONTOURS------------------------------
 
@@ -56,7 +61,9 @@ def get_bubbles(path):
     main_paper_canny = cv2.Canny(main_paper_blur, 100, 200)
 
     # Contours
-    main_paper_contours, hierarchy = cv2.findContours(main_paper_canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    main_paper_contours, hierarchy = cv2.findContours(
+        main_paper_canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE
+    )
     cv2.drawContours(main_paper_copy2, main_paper_contours, -1, (255, 0, 0), 2)
 
     # sorted rectangles (biggest area first)
@@ -83,7 +90,6 @@ def get_bubbles(path):
 
     questions_image = questions_image[8:-8, 8:-8]
 
-
     questions_image_copy = questions_image.copy()
     questions_image_copy2 = questions_image.copy()
     # ---------------------------------- applying circle contours  ----------------------------------------
@@ -93,19 +99,24 @@ def get_bubbles(path):
     questions_image_canny = cv2.Canny(questions_image_blur, 0, 255)
 
     # applying a threshold to the canny image using thresh otso.
-    ret, questions_image_thresh = cv2.threshold(questions_image_canny, 128, 255, cv2.THRESH_OTSU)
+    ret, questions_image_thresh = cv2.threshold(
+        questions_image_canny, 128, 255, cv2.THRESH_OTSU
+    )
     # cv2.imshow("question_image_thresh", questions_image_thresh)
     """This is the value that our algorithm choose
     as a threshold to push value to black when exceeding it"""
 
     # getting questions_image_contours using RETR_EXTERNAL to prevent having inner/outer circles
-    questions_image_contours = cv2.findContours(questions_image_thresh.copy(), cv2.RETR_EXTERNAL,
-                                                cv2.CHAIN_APPROX_NONE)
+    questions_image_contours = cv2.findContours(
+        questions_image_thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+    )
 
     questions_image_contours = imutils.grab_contours(questions_image_contours)
     # print(len(questions_image_contours))
     questions_image_contours = list(questions_image_contours)
-    questions_image_contours.sort(key=lambda x: utils.get_contour_precedence(x, main_paper.shape[1]))
+    questions_image_contours.sort(
+        key=lambda x: utils.get_contour_precedence(x, main_paper.shape[1])
+    )
     questions_image_contours = tuple(questions_image_contours)
     circles_contours = []
     # loop over the contours
@@ -152,8 +163,11 @@ def get_bubbles(path):
 
     # NOW we have circles_contours which has all 800 sorted contours
     # apply Otsu's threshold method to binarize the warped piece of paper
-    bubbled_thresh = cv2.threshold(questions_image_gray, 150, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[
-        1]  # inverted values (search for non-zeros)
+    bubbled_thresh = cv2.threshold(
+        questions_image_gray, 150, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU
+    )[
+        1
+    ]  # inverted values (search for non-zeros)
     # we will loop on every contour and get its value
     bubbled = []
 
@@ -175,6 +189,7 @@ def get_bubbles(path):
         # print("index: {} total: {} bubbled?: {}".format(j, total, is_bubbled))
     return bubbled
 
+
 # # ----------------------------------------------- PLOTTING --------------------------
 # plt.figure("question table")
 # plt.imshow(questions_image, cmap="gray")  # plotting the image.
@@ -184,27 +199,30 @@ def get_bubbles(path):
 #     cv2.imwrite("OMR4.jpg", main_paper)
 
 ## -------------------------------------------------- MAIN FUNCTION --------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     rename_images = True
     cwd = os.getcwd()
-    samples = os.path.join(cwd, 'samples')
-    ans_path = os.path.join(samples, 'ans.jpg')
+    samples = os.path.join(cwd, "samples")
+    ans_path = os.path.join(samples, "ans.jpg")
     answers = get_bubbles(ans_path)
 
     for q in os.scandir(samples):
-        if 'ans' in q.name:
+        if "ans" in q.name:
             continue
 
         bubbles = get_bubbles(q.path)
         if 1 in bubbles:
             grade = 0
             for i in range(0, 608, 4):
-                if bubbles[i] == answers[i] and bubbles[i + 1] == answers[i + 1] and bubbles[i + 2] == answers[
-                    i + 2] and bubbles[i + 3] == answers[i + 3]:
+                if (
+                    bubbles[i] == answers[i]
+                    and bubbles[i + 1] == answers[i + 1]
+                    and bubbles[i + 2] == answers[i + 2]
+                    and bubbles[i + 3] == answers[i + 3]
+                ):
                     grade += 1
             if rename_images:
                 utils.rename_image_with_grades(q, grade)
             print(q.name, grade)
         else:
             print(q.name, 0)
-

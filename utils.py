@@ -6,6 +6,14 @@ import numpy as np
 # detect all rectangles then but them in an array depending on the area..
 # then choosing the biggest one to be our question box.
 def find_sorted_rectangles(contours):
+    """ Finds the biggest rectangle in a list of rectangles.
+
+    Args:
+        contours (list): A list of rectangles.
+
+    Returns:
+        list: A list of rectangles sorted by area.
+    """
     rectangles = []
     for c in contours:
         area = cv2.contourArea(c)
@@ -46,12 +54,30 @@ def rearrange(points):
 
 
 def get_contour_precedence(contour, cols):
+    """ Get the contour's area and then divide by the number of columns in the image.
+
+    Args:
+        contour (numpy.ndarray): Contour.
+        cols (int): Number of columns in the image.
+
+    Returns:
+        float: Contour's area divided by the number of columns in the image.
+    """
     tolerance_factor = 10
     origin = cv2.boundingRect(contour)
     return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
 
 
 def sort_contours(contours, method="left-to-right"):
+    """ Sort the contours from left-to-right or top-to-bottom.
+
+    Args:
+        contours (list): A list of rectangles.
+        method (str, optional): Contour's order. Defaults to "left-to-right".
+
+    Returns:
+        list: A list of rectangles sorted from left-to-right or top-to-bottom.
+    """
     # initialize the reverse flag and sort index
     reverse = False
     i = 0
@@ -65,13 +91,25 @@ def sort_contours(contours, method="left-to-right"):
     # construct the list of bounding boxes and sort them from top to
     # bottom
     bounding_boxes = [cv2.boundingRect(c) for c in contours]
-    (contours, bounding_boxes) = zip(*sorted(zip(contours, bounding_boxes),
-                                             key=lambda b: b[1][i], reverse=reverse))
+    (contours, bounding_boxes) = zip(
+        *sorted(zip(contours, bounding_boxes), key=lambda b: b[1][i], reverse=reverse)
+    )
     # return the list of sorted contours and bounding boxes
     return contours, bounding_boxes
 
 
 def image_resize(image, width=None, height=None, inter=cv2.INTER_AREA):
+    """ Resize an image.
+
+    Args:
+        image (numpy.ndarray): Image.
+        width (int, optional): Width. Defaults to None.
+        height (int, optional): Height. Defaults to None.
+        inter (int, optional): Interpolation. Defaults to cv2.INTER_AREA.
+
+    Returns:
+        numpy.ndarray: Resized image.
+    """
     # initialize the dimensions of the image to be resized and
     # grab the image size
     dim = None
@@ -102,7 +140,14 @@ def image_resize(image, width=None, height=None, inter=cv2.INTER_AREA):
     # return the resized image
     return resized
 
+
 def rename_image_with_grades(q, grade):
+    """ Rename the image with the grade.
+
+    Args:
+        q (str): Question.
+        grade (str): Grade.
+    """
     open_brackets = "("
     close_brackets = ")"
     str_grade = str(grade)
@@ -111,7 +156,7 @@ def rename_image_with_grades(q, grade):
     image_name = q.name.split(".")
     first_part = str(image_name[0] + rename)
     print(first_part)
-    ext = '.jpg'
+    ext = ".jpg"
     str_ext = str(ext)
     new_name1 = str(first_part + str_ext)
     if rename not in q.name:

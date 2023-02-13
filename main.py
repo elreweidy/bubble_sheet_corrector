@@ -14,13 +14,9 @@ import utils
 def get_bubbles(path):
     path = str(path)
     main_paper = cv2.imread(path)
-    # width2, height2, channels = main_paper.shape
-    # print("original image resolution: width of {}, height of {}".format(width2, height2))
     img = utils.image_resize(main_paper, height=1800)
     width, height, channels = img.shape
-    # print("resized image resolution: width of {}, height of {}".format(width, height))
-
-    plt.figure("question table")
+    # plt.figure("question table")
     # plt.imshow(main_paper, cmap="gray")# plotting the image.
     # plt.show()
     k = cv2.waitKey(0)  # preventing the images to automatically just disappear.
@@ -134,12 +130,12 @@ def get_bubbles(path):
 
     all_h = all_h / len(questions_image_contours)
     all_w = all_w / len(questions_image_contours)
-    # print(all_h)
-    # print(all_w)
     bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
-    plt.hist(h_list, bins=bins, edgecolor="red")
-    plt.xlabel("contours intervals(numbers)")
-    plt.ylabel("contours area")
+
+    ## show the histogram
+    # plt.hist(h_list, bins=bins, edgecolor="red")
+    # plt.xlabel("contours intervals(numbers)")
+    # plt.ylabel("contours area")
     # plt.show()
 
     for c in questions_image_contours:
@@ -189,14 +185,6 @@ def get_bubbles(path):
         # print("index: {} total: {} bubbled?: {}".format(j, total, is_bubbled))
     return bubbled
 
-
-# # ----------------------------------------------- PLOTTING --------------------------
-# plt.figure("question table")
-# plt.imshow(questions_image, cmap="gray")  # plotting the image.
-# plt.show()
-# k = cv2.waitKey(0)  # preventing the images to automatically just disappear.
-# if k == ord("s"):  # save the image if we pressed the letter s in out keyboard.
-#     cv2.imwrite("OMR4.jpg", main_paper)
 
 ## -------------------------------------------------- MAIN FUNCTION --------------------
 if __name__ == "__main__":

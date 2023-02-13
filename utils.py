@@ -3,8 +3,6 @@ import cv2, os
 import numpy as np
 
 
-# detect all rectangles then but them in an array depending on the area..
-# then choosing the biggest one to be our question box.
 def find_sorted_rectangles(contours):
     """ Finds the biggest rectangle in a list of rectangles.
 
@@ -36,8 +34,6 @@ def detect_corners(rectangle):
     return approx
 
 
-# bring the question box we just detected to live and..
-# make it our new image.
 def rearrange(points):
     # the shape of the question_box rectangle now is (4, 1, 2), so we
     # need to remove the 1 dimension as we don't need it.
